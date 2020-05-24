@@ -17,7 +17,7 @@ import Foundation
 import CoreBluetooth
 
 class ScanViewModel: NSObject, ObservableObject, CBCentralManagerDelegate  {
-    @Published var results = [ScanResult]()
+    @Published var results = [CBPeripheral]()
     private var centralManager: CBCentralManager? = nil
     override init() {
         super.init()
@@ -30,6 +30,11 @@ class ScanViewModel: NSObject, ObservableObject, CBCentralManagerDelegate  {
 
     }
 
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        if results.contains(peripheral) { return }
+        results.append(peripheral)
+    }
+
     func startScan(){
         centralManager?.scanForPeripherals(withServices: nil, options: nil)//specifying nil for the first parameter, the central manager returns all discovered peripherals, regardless of their supported services
     }
@@ -38,8 +43,8 @@ class ScanViewModel: NSObject, ObservableObject, CBCentralManagerDelegate  {
         centralManager?.stopScan()
     }
 
-    func connectToPeripheral() {
-
+    func connectTo(peripheral: CBPeripheral) {
+        centralManager?.connect(peripheral, options: nil)
     }
 
 }

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import CoreBluetooth
 
 private let dateFormatter: DateFormatter = {
     let dateFormatter = DateFormatter()
@@ -17,55 +18,58 @@ private let dateFormatter: DateFormatter = {
 
 struct ContentView: View {
     @ObservedObject var vm: ScanViewModel
-    @State private var dates = [Date]()
-    @State private var shouldAnimate = false
+    @State private var isScanning = false
 
     var body: some View {
-        VStack{
-            ActivityIndicator(shouldAnimate: self.$shouldAnimate)
+        ZStack(alignment: .center) {
             NavigationView {
-
-                MasterView(dates: $dates)
+                MasterView(results: $vm.results)
                     .navigationBarTitle(Text("Scan Results"))
                     .navigationBarItems(
-                        trailing: Button(action: {
-                            self.vm.startScan()
-                            self.shouldAnimate = true
+                        leading: Button(action: {
+                            self.vm.results = [CBPeripheral]()
                         }) {
-                            Text("Scan")
+                            if self.vm.results.count != 0 { Text("Clear") }
+                        },
+                        trailing: Button(action: {
+                            if self.isScanning { self.vm.stopScan() }
+                            else { self.vm.startScan() }
+                            self.isScanning = !self.isScanning
+                        }) {
+                            if isScanning { Text("Stop Scan") }
+                            else { Text("Scan") }
                         }
                 )
                 DetailView()
             }.navigationViewStyle(DoubleColumnNavigationViewStyle())
+            ActivityIndicator(shouldAnimate: self.$isScanning)
         }
     }
 }
 
 struct MasterView: View {
-    @Binding var dates: [Date]
+    @Binding var results: [CBPeripheral]
 
     var body: some View {
         List {
-            ForEach(dates, id: \.self) { date in
+            ForEach(results, id: \.self) { result in
                 NavigationLink(
-                    destination: DetailView(selectedDate: date)
+                    destination: DetailView(selectedResult: result)
                 ) {
-                    Text("\(date, formatter: dateFormatter)")
+                    Text("\(result.name ?? "No name assigned")")
                 }
-            }.onDelete { indices in
-                indices.forEach { self.dates.remove(at: $0) }
             }
         }
     }
 }
 
 struct DetailView: View {
-    var selectedDate: Date?
+    var selectedResult: CBPeripheral?
 
     var body: some View {
         Group {
-            if selectedDate != nil {
-                Text("\(selectedDate!, formatter: dateFormatter)")
+            if selectedResult != nil {
+                Text("\(selectedResult?.name  ?? "No name assigned")")
             } else {
                 Text("Detail view content goes here")
             }

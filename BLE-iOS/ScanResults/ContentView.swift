@@ -16,24 +16,28 @@ private let dateFormatter: DateFormatter = {
 }()
 
 struct ContentView: View {
+    @ObservedObject var vm: ScanViewModel
     @State private var dates = [Date]()
+    @State private var shouldAnimate = false
 
     var body: some View {
-        NavigationView {
-            MasterView(dates: $dates)
-                .navigationBarTitle(Text("Master"))
-                .navigationBarItems(
-                    leading: EditButton(),
-                    trailing: Button(
-                        action: {
-                            withAnimation { self.dates.insert(Date(), at: 0) }
+        VStack{
+            ActivityIndicator(shouldAnimate: self.$shouldAnimate)
+            NavigationView {
+
+                MasterView(dates: $dates)
+                    .navigationBarTitle(Text("Scan Results"))
+                    .navigationBarItems(
+                        trailing: Button(action: {
+                            self.vm.startScan()
+                            self.shouldAnimate = true
+                        }) {
+                            Text("Scan")
                         }
-                    ) {
-                        Image(systemName: "plus")
-                    }
                 )
-            DetailView()
-        }.navigationViewStyle(DoubleColumnNavigationViewStyle())
+                DetailView()
+            }.navigationViewStyle(DoubleColumnNavigationViewStyle())
+        }
     }
 }
 
@@ -72,6 +76,8 @@ struct DetailView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(vm: ScanViewModel())
     }
 }
+
+

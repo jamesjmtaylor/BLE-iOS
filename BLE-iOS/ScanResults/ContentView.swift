@@ -17,70 +17,51 @@ private let dateFormatter: DateFormatter = {
 }()
 
 struct ContentView: View {
-    @ObservedObject var vm: ScanViewModel
-    @State private var isScanning = false
+    @ObservedObject var vm: BluetoothViewModel
 
     var body: some View {
         ZStack(alignment: .center) {
             NavigationView {
-                MasterView(results: $vm.results)
+                MasterView(vm: vm)
                     .navigationBarTitle(Text("Scan Results"))
                     .navigationBarItems(
                         leading: Button(action: {
-                            self.vm.results = [CBPeripheral]()
+                            self.vm.results = [BleDevice]()
                         }) {
                             if self.vm.results.count != 0 { Text("Clear") }
                         },
                         trailing: Button(action: {
-                            if self.isScanning { self.vm.stopScan() }
+                            if self.vm.showActivityIndicator { self.vm.stopScan() }
                             else { self.vm.startScan() }
-                            self.isScanning = !self.isScanning
                         }) {
-                            if isScanning { Text("Stop Scan") }
+                            if vm.showActivityIndicator { Text("Stop Scan") }
                             else { Text("Scan") }
                         }
                 )
-                DetailView()
+                DetailView(vm: vm)
             }.navigationViewStyle(DoubleColumnNavigationViewStyle())
-            ActivityIndicator(shouldAnimate: self.$isScanning)
+            ActivityIndicator(shouldAnimate: self.$vm.showActivityIndicator)
         }
     }
 }
 
 struct MasterView: View {
-    @Binding var results: [CBPeripheral]
-
+    @ObservedObject var vm: BluetoothViewModel
     var body: some View {
         List {
-            ForEach(results, id: \.self) { result in
-                NavigationLink(
-                    destination: DetailView(selectedResult: result)
-                ) {
-                    Text("\(result.name ?? "No name assigned")")
+            ForEach(vm.results, id: \.self) { result in
+                NavigationLink(destination: DetailView(vm: self.vm,
+                                                       selectedResult: result)) {
+                                                        Text("\(result.peripheral.name ?? "No name assigned")")
                 }
             }
         }
     }
 }
 
-struct DetailView: View {
-    var selectedResult: CBPeripheral?
-
-    var body: some View {
-        Group {
-            if selectedResult != nil {
-                Text("\(selectedResult?.name  ?? "No name assigned")")
-            } else {
-                Text("Detail view content goes here")
-            }
-        }.navigationBarTitle(Text("Detail"))
-    }
-}
-
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(vm: ScanViewModel())
+        ContentView(vm: BluetoothViewModel())
     }
 }
 

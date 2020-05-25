@@ -1,0 +1,6 @@
+framework module Pods_BLE_iOS {
+  umbrella header "Pods-BLE-iOS-umbrella.h"
+
+  export *
+  module * { export * }
+}

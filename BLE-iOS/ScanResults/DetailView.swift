@@ -27,14 +27,14 @@ struct DetailView: View {
             .alignmentGuide(.leading, computeValue: {d in d[.leading] - 16})
             .frame(maxWidth: .infinity, alignment: .leading)
 
-        }.navigationBarTitle("\(selectedResult?.peripheral.name  ?? "No name assigned")").onAppear { self.vm.stopScan()
+        }.navigationBarTitle("\(selectedResult?.peripheral?.name  ?? "No name assigned")").onAppear { self.vm.stopScan()
         }.navigationBarItems(
             trailing: Button(action: {
                 guard let peripheral = self.selectedResult?.peripheral else { return }
-                if self.vm.isConnected { self.vm.disconnectFrom(peripheral: peripheral) }
+                if selectedResult?.connected == true { self.vm.disconnectFrom(peripheral: peripheral) }
                 else { self.vm.connectTo(peripheral: peripheral) }
             }) {
-                if vm.isConnected { Text("Disconnect") }
+                if selectedResult?.connected == true { Text("Disconnect") }
                 else { Text("Connect") }
             }
         )

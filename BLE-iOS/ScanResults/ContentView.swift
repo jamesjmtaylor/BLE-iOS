@@ -52,7 +52,7 @@ struct MasterView: View {
             ForEach(vm.results, id: \.self) { result in
                 NavigationLink(destination: DetailView(vm: self.vm,
                                                        selectedResult: result)) {
-                                                        Text("\(result.peripheral.name ?? "No name assigned")")
+                    Text("\(result.peripheral?.name ?? "No name assigned")")
                 }
             }
         }

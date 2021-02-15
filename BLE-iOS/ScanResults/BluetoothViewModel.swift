@@ -16,8 +16,11 @@
 import Foundation
 import CoreBluetooth
 
-struct BleDevice: Equatable, Hashable {
-    let peripheral: CBPeripheral; let advertisementData: [String : Any]; let rssi: Double
+class BleDevice: Equatable, Hashable {
+    var peripheral: CBPeripheral? = nil;
+    var advertisementData: [String : Any] = [:];
+    var rssi: Double = 0.0
+    var connected: Bool = false
     static func == (lhs: BleDevice, rhs: BleDevice) -> Bool {return lhs.peripheral == rhs.peripheral}
     func hash(into hasher: inout Hasher) {hasher.combine(peripheral)}
 }
@@ -58,7 +61,10 @@ class BluetoothViewModel: NSObject, ObservableObject, CBCentralManagerDelegate, 
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        let device = BleDevice(peripheral: peripheral, advertisementData: advertisementData, rssi: RSSI.doubleValue)
+        let device = BleDevice()
+        device.peripheral = peripheral
+        device.advertisementData = advertisementData
+        device.rssi = RSSI.doubleValue
         if results.contains(device) { return }
         results.append(device)
     }
@@ -70,20 +76,24 @@ class BluetoothViewModel: NSObject, ObservableObject, CBCentralManagerDelegate, 
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral){
+        results.first{ $0.peripheral == peripheral }?.connected = true
         self.isConnected = true
         self.showActivityIndicator = false
     }
 
     func disconnectFrom(peripheral: CBPeripheral) {
+        results.first{ $0.peripheral == peripheral }?.connected = false
         centralManager?.cancelPeripheralConnection(peripheral)
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        results.first{ $0.peripheral == peripheral }?.connected = false
         self.isConnected = false
         self.showActivityIndicator = false
     }
 
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        results.first{ $0.peripheral == peripheral }?.connected = false
         self.isConnected = false
         self.showActivityIndicator = false
     }

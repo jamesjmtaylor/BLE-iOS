@@ -13,7 +13,6 @@ struct DetailView: View {
     @ObservedObject var vm: BluetoothViewModel
     var selectedResult: BleDevice?
 
-
     var body: some View {
         let keys = selectedResult?.advertisementData.map{$0.key.description} ?? [String]()
         let values = selectedResult?.advertisementData.map {($0.value as AnyObject).description} ?? [String]()

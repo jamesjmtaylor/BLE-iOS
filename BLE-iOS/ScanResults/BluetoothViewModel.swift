@@ -9,7 +9,7 @@
 //  https://developer.apple.com/library/archive/documentation/NetworkingInternetWeb/Conceptual/CoreBluetooth_concepts/AboutCoreBluetooth/Introduction.html#//apple_ref/doc/uid/TP40013257
 //  This app acts a central to scanned peripherals. A peripheral typically has data that is needed by other devices.
 //  A central typically uses the information served up by a peripheral to accomplish some task.
-//  By default, your app is unable to perform Bluetooth low energy tasks while it is in the background or in a suspended state.
+//  By default, your app is unable to perform Bluetooth Low Energy tasks while it is in the background or in a suspended state.
 //  You can declare background support for one or both of the Core Bluetooth background execution modes (there’s one for the central role, and one for the peripheral role).
 //  Even apps that support background processing may be terminated by the system at any time to free up memory for the current foreground app.
 
